@@ -5,26 +5,35 @@ from .models import Category, Product, Review
 from .serializers import CategoryListSerializers, CategoryDetailSerializers, ProductListSerializers, ProductDetailSerializers
 from .serializers import ReviewListSerializers, ReviewDetailSerializers
 
+# Если поступает гет запрос по данной функции - обрабатываем, иначе пропускаем
 @api_view(['GET'])
+# Функция
 def shop_products_with_reviews_view(request):
+    #оптимизация запросов
     products = Product.objects.prefetch_related('reviews').all()
     
+    # ручное формирование данных через цикл
     result = []
     for product in products:
         reviews = product.reviews.all()
         
+        # проверка
         if reviews:
+            # вычисления
             average_rating = sum(review.stars for review in reviews) / len(reviews)
             average_rating = round(average_rating, 1)
         else:
+            # если не вычислели - передам ничего
             average_rating = None
         
+        # сериализация данных
         reviews_data = ReviewListSerializers(reviews, many=True).data
         product_data = ProductListSerializers(product).data
         
-        product_data['reviews'] = reviews_data
-        product_data['average_rating'] = average_rating
-        
+
+        product_data['reviews'] = reviews_data # Добавляем список отзывов
+        product_data['average_rating'] = average_rating # Добавляем средний рейтинг
+        # Добавления результатов 
         result.append(product_data)
     
     return Response(data=result)
@@ -36,6 +45,7 @@ def shop_list_category_view(request):
     category = Category.objects.all()
     # Формотируем все объекты
     data = CategoryListSerializers(category, many=True).data
+    # проходимся через цикл, через встроенную функцию enumerate получаем индексы и cat
     for i, cat in enumerate(category):
         data[i]['products_count'] = cat.products.count()
     # Отправляем все в json формате 
