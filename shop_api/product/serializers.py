@@ -29,7 +29,7 @@ class ProductDetailSerializers(serializers.ModelSerializer):
 class ReviewListSerializers(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = ['id', 'text', 'product', 'stars']
 
 # Создаем класс ReviewDetailSerializers, чтобы вывести все значения в json формате
 class ReviewDetailSerializers(serializers.ModelSerializer):

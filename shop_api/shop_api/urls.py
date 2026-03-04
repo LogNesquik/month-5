@@ -4,7 +4,7 @@ from product import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/categories/', views.shop_list_category_view),
+    path('api/v1/categories/', views.shop_list_category_view), # GET - list, POST - create
     path('api/v1/categories/<int:id>/', views.shop_detail_category_view),
     path('api/v1/products/', views.shop_list_product_view),
     path('api/v1/products/<int:id>/', views.shop_detatil_product_view),
