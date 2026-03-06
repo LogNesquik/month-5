@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from .models import Category, Product, Review
+from rest_framework.exceptions import ValidationError
+
+
 
 # Создаем класс категори деталей, чтобы вывести все значения в json формате
 class CategoryDetailSerializers(serializers.ModelSerializer):
@@ -67,3 +70,37 @@ class ProductWithReviewsSerializer(serializers.ModelSerializer):
             return sum(review.stars for review in reviews) / len(reviews)
         # иначе вернем - ничего
         return None
+
+
+class ProductValidateSerializer(serializers.Serializer):
+    title = serializers.CharField(required=True, max_length=255, min_length=3)
+    description = serializers.CharField(required=False)
+    price = serializers.IntegerField()
+    category = serializers.ListField(child=serializers.IntegerField())
+
+    def validate_category(self, category):
+        category = list(set(category))
+        category_from_db = Category.objects.filter(id__in=category)
+        if len(category) != len(category_from_db):
+            raise ValidationError("Category does not exsist")
+        return category
+
+
+class ReviewValidateSerializer(serializers.Serializer):
+    text = serializers.CharField(max_length=1000)
+    product = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(),
+        required=True
+    )
+    stars = serializers.ChoiceField(choices=Review.choices, default=1)
+    
+    def validate_text(self, value):
+        if len(value) < 10:
+            raise serializers.ValidationError("Текст отзыва должен быть не менее 10 символов")
+        return value
+
+
+class CategoryValidateSerializer(serializers.Serializer):
+    name = serializers.CharField(min_length=3, max_length=10)
+
+
