@@ -5,7 +5,9 @@ from product import views
 
 router = DefaultRouter()
 router.register(
-    'categories', views.ShopListCategoryView
+    'categories', views.ShopListCategoryView,
+    'products', views.ProductViewSet,
+    'reviews', views.ReviewViewSet
 )
 
 
@@ -18,5 +20,7 @@ urlpatterns = [
     path('api/v1/reviews/', views.shop_list_review_view),
     path('api/v1/reviews/<int:id>/', views.shop_detatil_review_view),
     path('api/v1/products/reviews/', views.shop_products_with_reviews_view),
+    path('api/v2/', include(router.urls)),
+    path('api/v2/', include(router.urls)),
     path('api/v2/', include(router.urls)),    
 ]
