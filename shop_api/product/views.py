@@ -5,6 +5,8 @@ from .models import Category, Product, Review
 from .serializers import CategoryListSerializers, CategoryDetailSerializers, ProductListSerializers, ProductDetailSerializers
 from .serializers import ReviewListSerializers, ReviewDetailSerializers
 from .serializers import ProductValidateSerializer, ReviewListSerializers, CategoryValidateSerializer, ReviewValidateSerializer
+from rest_framework.viewsets import ModelViewSet
+
 
 # Если поступает гет запрос по данной функции - обрабатываем, иначе пропускаем
 @api_view(['GET'])
@@ -40,6 +42,14 @@ def shop_products_with_reviews_view(request):
     return Response(data=result)
 
 
+class ShopListCategoryView(ModelViewSet):
+    queryset = Category.objects.all()
+    
+    def get_serializer_class(self):
+        if self.action == "list":
+            return CategoryListSerializers
+        return CategoryDetailSerializers
+
 @api_view(['GET', 'POST'])
 def shop_list_category_view(request):
     # Вытаскиваем все объекты
@@ -65,6 +75,7 @@ def shop_list_category_view(request):
         )
 
         return Response(status=status.HTTP_201_CREATED)
+    
 @api_view(['GET', 'PUT', 'DELETE'])
 def shop_detail_category_view(request, id):
     try:
@@ -87,6 +98,13 @@ def shop_detail_category_view(request, id):
         category_one.name = request.data.get('name')
         category_one.save()
         return Response(status=status.HTTP_201_CREATED)
+
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.prefetch_related('category')
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ProductListSerializers
+        return ProductDetailSerializers
 
 @api_view(['GET', 'POST'])
 def shop_list_product_view(request):
@@ -140,6 +158,15 @@ def shop_detatil_product_view(request, id):
         product.category.set(request.data.get('category'))
         product.save()
         return Response(status=status.HTTP_201_CREATED)
+
+
+class ReviewViewSet(ModelViewSet):
+    queryset = Review.objects.select_related('product')
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return ReviewListSerializers
+        return ReviewDetailSerializers
 
 @api_view(['GET', 'POST'])
 def shop_list_review_view(request):
