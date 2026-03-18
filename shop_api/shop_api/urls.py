@@ -4,12 +4,10 @@ from rest_framework.routers import DefaultRouter
 from product import views
 
 router = DefaultRouter()
-router.register(
-    'categories', views.ShopListCategoryView,
-    'products', views.ProductViewSet,
-    'reviews', views.ReviewViewSet
-)
-
+# Регистрируем КАЖДЫЙ ViewSet отдельным вызовом
+router.register('categories', views.ShopListCategoryView)  # Первый вызов
+router.register('products', views.ProductViewSet)          # Второй вызов
+router.register('reviews', views.ReviewViewSet)            # Третий вызов
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -20,7 +18,6 @@ urlpatterns = [
     path('api/v1/reviews/', views.shop_list_review_view),
     path('api/v1/reviews/<int:id>/', views.shop_detatil_review_view),
     path('api/v1/products/reviews/', views.shop_products_with_reviews_view),
-    path('api/v2/', include(router.urls)),
-    path('api/v2/', include(router.urls)),
-    path('api/v2/', include(router.urls)),    
+    path('api/v2/', include(router.urls)),  # Подключаем ВСЕ зарегистрированные маршруты
+    path('api/v1/users/', include('users.urls')),
 ]
