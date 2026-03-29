@@ -1,0 +1,12 @@
+FROM python:3.12
+
+ENV PYTHONDONTWRITEBYCODE 1
+ENV PYTHONUNBUFFERED 1
+
+WORKDIR /app
+
+COPY rq.txt /app/rq.txt
+
+RUN pip install -r /app/rq.txt
+
+COPY . .
