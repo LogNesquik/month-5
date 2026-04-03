@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from common.permissions import IsAnonymous, IsOwner
+from common.permissions import IsAnonymous, IsOwner, IsModerator
 
 from .models import Category, Product, Review
 from .serializers import (
@@ -76,7 +76,7 @@ class ProductListCreateAPIView(ListCreateAPIView):
     serializer_class = ProductSerializer
     pagination_class = CustomPagination
     permission_classes = [
-        IsOwner,
+        IsModerator,
     ]
 
     def post(self, request, *args, **kwargs):
@@ -107,7 +107,8 @@ class ProductDetailAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.select_related("category").all()
     serializer_class = ProductSerializer
     lookup_field = "id"
-    permission_classes = [IsOwner | IsAnonymous]
+    # permission_classes = [IsOwner | IsAnonymous]
+    permission_classes = [IsModerator,]
 
     def put(self, request, *args, **kwargs):
         product = self.get_object()
@@ -128,6 +129,7 @@ class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
     pagination_class = CustomPagination
     lookup_field = "id"
+    permission_classes = [IsModerator,]
 
     def create(self, request, *args, **kwargs):
         serializer = ReviewValidateSerializer(data=request.data)
@@ -165,6 +167,7 @@ class ProductWithReviewsAPIView(APIView):
             Product.objects.select_related("category").prefetch_related("reviews").all()
         )
         result_page = paginator.paginate_queryset(products, request)
+ 
 
         serializer = ProductWithReviewsSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)

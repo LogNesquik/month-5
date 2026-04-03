@@ -13,20 +13,24 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+dotenv_path = BASE_DIR / '.env'
+load_dotenv(dotenv_path)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET")
-
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY не найден в .env")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if os.environ.get("DEBUG") == "on" else False
+DEBUG = os.getenv("DEBUG") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 
 
 # Application definition
@@ -96,6 +100,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "shop_api.wsgi.application"
 
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Shop_API ADMIN MENU",
+    "site_header": "GEEKS",
+    "site_brand": "Brand Logo",
+    "welcome_sign": "Добро пожаловать в админку!",
+    "copyright": "Shop_API ©2026",
+    "search_model": "users.CustomUser",
+    "topmenu_links": [
+        {"name": "Главная страница", "url": "/", "permissions": ["auth.view_user"]},
+    ],
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
