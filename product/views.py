@@ -70,7 +70,7 @@ class CategoryDetailAPIView(RetrieveUpdateDestroyAPIView):
 
         return Response(data=CategorySerializer(instance).data)
 
-
+# comment
 class ProductListCreateAPIView(ListCreateAPIView):
     queryset = Product.objects.select_related("category").all()
     serializer_class = ProductSerializer
